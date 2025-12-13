@@ -8,11 +8,14 @@ using Serilog.Configuration;
 using System.Text;
 using System.Threading.RateLimiting;
 using TecTest_Lubee.Core.Helper;
+using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configsetting = builder.Configuration
                            .AddJsonFile("appsettings.json");
+
 ILoggerSettings serilogConfig = (ILoggerSettings)builder.Configuration.GetSection("Serilog");
 
 Log.Logger = new LoggerConfiguration()
@@ -44,37 +47,9 @@ var allowedOrigins = builder.Configuration
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TecTest-Lubee", Version = "v1" });
 
-    // Configuraci n necesaria para que la interface de Swagger acepte el ingreso del token de Autenticaci n.
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme.\r\n\r\nEnter your token in the text input below."
-    });
-
-    // Configuraci n necesaria para que la interface de Swagger acepte el ingreso del token de Autorizaci n.
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference()
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            }, new string[] { }
-        }
-    });
-});
-
+builder.Services.AddSwaggerGen();
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -124,6 +99,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

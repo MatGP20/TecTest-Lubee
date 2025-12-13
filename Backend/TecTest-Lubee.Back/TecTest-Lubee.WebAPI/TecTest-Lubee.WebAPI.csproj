@@ -25,4 +25,8 @@
     <ProjectReference Include="..\TecTest-Lubee.Services\TecTest-Lubee.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

@@ -7,4 +7,18 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.15.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TecTest-Lubee.Core\TecTest-Lubee.Core.csproj" />
+    <ProjectReference Include="..\TecTest-Lubee.Data\TecTest-Lubee.Data.csproj" />
+  </ItemGroup>
+
 </Project>

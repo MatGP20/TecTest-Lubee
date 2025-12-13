@@ -17,4 +17,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TecTest-Lubee.Data\TecTest-Lubee.Data.csproj" />
+  </ItemGroup>
+
 </Project>
