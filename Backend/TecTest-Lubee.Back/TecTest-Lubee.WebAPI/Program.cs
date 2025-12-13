@@ -1,25 +1,24 @@
-using Microsoft.OpenApi.Models;
-using Serilog;
-using System.Threading.RateLimiting;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
-using TecTest_Lubee.Core.Helper;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Configuration;
+using System.Text;
+using System.Threading.RateLimiting;
+using TecTest_Lubee.Core.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configsetting = builder.Configuration
                            .AddJsonFile("appsettings.json");
+ILoggerSettings serilogConfig = (ILoggerSettings)builder.Configuration.GetSection("Serilog");
 
-
-builder.Host.UseSerilog((context, loggerConfiguration) =>
-{
-    loggerConfiguration
-        .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext();
-});
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Settings(serilogConfig)
+    .Enrich.FromLogContext()
+    .CreateLogger();
 
 var rateLimitingSettings = builder.Configuration
     .GetSection("RateLimiting")
@@ -127,6 +126,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
+if (app.Environment.IsDevelopment())
+{
+    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+        }
+    });
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
