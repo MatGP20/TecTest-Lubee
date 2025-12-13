@@ -52,3 +52,11 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/.vs/TecTest-Lubee/CopilotIndices/17.14.1518.61961
+/.vs/TecTest-Lubee/FileContentIndex
+/.vs/TecTest-Lubee/v17
+/.vs
+/Backend/TecTest-Lubee.Back/TecTest-Lubee.WebAPI/appsettings.Development.json
+/Backend/TecTest-Lubee.Back/.vs/TecTest-Lubee.Back/v17
+/Backend/TecTest-Lubee.Back/.vs/TecTest-Lubee.Back/FileContentIndex
+/Backend/TecTest-Lubee.Back/.vs
