@@ -16,13 +16,13 @@ namespace TecTest_Lubee.Services.Services
             _contextFactory = contextFactory;
         }
 
-        public async Task<List<Inmueble>> GetAllAsync(bool isComplete)
+        public async Task<List<Inmueble>> GetAllAsync(bool isOnlyActive)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
                 var inmueblesQuery = context.Inmuebles.AsNoTracking();
 
-                if (isComplete)
+                if (isOnlyActive)
                 {
                     inmueblesQuery = inmueblesQuery.Where(i => i.IsActive);
                 }

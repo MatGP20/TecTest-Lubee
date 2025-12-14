@@ -1,44 +1,149 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TecTest_Lubee.Services.Interfaces;
+using TecTest_Lubee.Data.Entities;
 
 namespace TecTest_Lubee.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
+    [Authorize("Admin")]
     public class InmuebleController : ControllerBase
     {
-        // GET: api/<InmuebleController>
+        protected readonly IInmuebleService _inmuebleService;
+        private readonly ILogger<InmuebleController> _logger;
+
+        public InmuebleController(
+            IInmuebleService inmuebleService,
+            ILogger<InmuebleController> logger)
+        {
+            _inmuebleService = inmuebleService;
+            _logger = logger;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> GetAll([FromQuery] bool includeInactive = false)
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                _logger.LogInformation("Listando inmuebles. includeInactive={IncludeInactive}", includeInactive);
+                var inmuebles = await _inmuebleService.GetAllAsync(!includeInactive);
+                if (inmuebles == null || !inmuebles.Any())
+                {
+                    _logger.LogWarning("No se encontraron inmuebles");
+                    return NotFound("No se encontraron inmuebles");
+                }
+                return Ok(inmuebles);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al listar inmuebles");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al listar inmuebles");
+            }
         }
 
-        // GET api/<InmuebleController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult> Get(Guid id)
         {
-            return "value";
+            try
+            {
+                _logger.LogInformation("Obteniendo inmueble {InmuebleId}", id);
+                var inmueble = await _inmuebleService.GetByIdAsync(id);
+                if (inmueble is null)
+                {
+                    _logger.LogWarning("Inmueble {InmuebleId} no encontrado", id);
+                    return NotFound();
+                }
+                return Ok(inmueble); 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener inmueble {InmuebleId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al obtener inmueble");
+            }            
         }
 
-        // POST api/<InmuebleController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] Inmueble inmueble)
         {
+            try{
+                _logger.LogInformation("Creando inmueble nuevo");
+                var created = await _inmuebleService.CreateAsync(inmueble);
+                if (!created)
+                {
+                    _logger.LogError("No se pudo crear el inmueble");
+                    return StatusCode(StatusCodes.Status500InternalServerError, "No se pudo crear el inmueble");
+                }
+                return CreatedAtAction(nameof(Get), new { id = inmueble.Id }, inmueble);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear inmueble");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al crear inmueble");
+            }
         }
 
-        // PUT api/<InmuebleController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Put(Guid id, [FromBody] Inmueble inmueble)
         {
+            try{
+            _logger.LogInformation("Actualizando inmueble {InmuebleId}", id);
+            var updated = await _inmuebleService.UpdateAsync(id, inmueble);
+            if (!updated)
+            {
+                _logger.LogWarning("No se encontró inmueble {InmuebleId} para actualizar", id);
+                return NotFound();
+            }
+            return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al actualizar inmueble {InmuebleId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al actualizar inmueble");
+            }
         }
 
-        // DELETE api/<InmuebleController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPatch("{id:guid}/activation")]
+        public async Task<IActionResult> ToggleActivation(Guid id, [FromQuery] bool isActive)
         {
+            try
+            {
+                _logger.LogInformation("Cambiando estado de inmueble {InmuebleId} a {IsActive}", id, isActive);
+                var toggled = await _inmuebleService.ToggleActive(id, isActive);
+                if (!toggled)
+                {
+                    _logger.LogWarning("No se encontró inmueble {InmuebleId} para cambiar estado", id);
+                    return NotFound();
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cambiar estado de inmueble {InmuebleId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al cambiar estado de inmueble");
+            }
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("Desactivando inmueble {InmuebleId}", id);
+                var toggled = await _inmuebleService.ToggleActive(id, false);
+                if (!toggled)
+                {
+                    _logger.LogWarning("No se encontró inmueble {InmuebleId} para desactivar", id);
+                    return NotFound();
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al desactivar inmueble {InmuebleId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error al desactivar inmueble");
+            }
         }
     }
 }
