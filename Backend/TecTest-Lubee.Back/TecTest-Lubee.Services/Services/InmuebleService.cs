@@ -26,8 +26,9 @@ namespace TecTest_Lubee.Services.Services
                 {
                     inmueblesQuery = inmueblesQuery.Where(i => i.IsActive);
                 }
-
-                inmueblesQuery = inmueblesQuery.Include(pi => pi.Images);
+                
+                inmueblesQuery = inmueblesQuery.Include(pi => pi.Images!
+                    .Where(i=> i.IsPrimary));
 
                 return await inmueblesQuery.ToListAsync();
             }
@@ -44,17 +45,17 @@ namespace TecTest_Lubee.Services.Services
             }
         }
 
-        public async Task<List<Inmueble>> CreateAsync(Inmueble inmueble)
+        public async Task<bool> CreateAsync(Inmueble inmueble)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
                 context.Inmuebles.Add(inmueble);
                 await context.SaveChangesAsync();
-                return await GetAllAsync(true);
+                return true;
             }
         }
 
-        public async Task<List<Inmueble>?> UpdateAsync(Guid id, Inmueble updatedInmueble)
+        public async Task<bool> UpdateAsync(Guid id, Inmueble updatedInmueble)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -63,7 +64,7 @@ namespace TecTest_Lubee.Services.Services
                     .FirstOrDefaultAsync(i => i.Id == id);
                 if (inmueble == null)
                 {
-                    return null;
+                    return false;
                 }
                 inmueble.Description = updatedInmueble.Description;
                 inmueble.Location = updatedInmueble.Location;
@@ -73,11 +74,11 @@ namespace TecTest_Lubee.Services.Services
                 inmueble.Antiquity = updatedInmueble.Antiquity;
                 context.Inmuebles.Update(inmueble);
                 await context.SaveChangesAsync();
-                return await GetAllAsync(true);
+                return true;
             }
         }
 
-        public async Task<List<Inmueble>?> ToggleActive(Guid id, bool isActivated)
+        public async Task<bool> ToggleActive(Guid id, bool isActivated)
         {
             using (var context = _contextFactory.CreateDbContext())
             {
@@ -85,12 +86,12 @@ namespace TecTest_Lubee.Services.Services
                     .FirstOrDefaultAsync(i => i.Id == id);
                 if (inmueble == null)
                 {
-                    return null;
+                    return false;
                 }
                 inmueble.IsActive = isActivated;
                 context.Inmuebles.Update(inmueble);
                 await context.SaveChangesAsync();
-                return await GetAllAsync(true);
+                return true;
             }
         }
     }
