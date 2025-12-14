@@ -1,6 +1,6 @@
 using TecTest_Lubee.Data.Entities;
 
-namespace TecTest_Lubee.Core.Interfaces;
+namespace TecTest_Lubee.Services.Interfaces;
 
 public interface IJwtTokenService
 {

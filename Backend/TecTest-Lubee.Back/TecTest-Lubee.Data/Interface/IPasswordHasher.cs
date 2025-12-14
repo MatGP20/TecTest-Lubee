@@ -1,4 +1,4 @@
-namespace TecTest_Lubee.Core.Interfaces;
+namespace TecTest_Lubee.Data.Interface;
 
 public interface IPasswordHasher
 {

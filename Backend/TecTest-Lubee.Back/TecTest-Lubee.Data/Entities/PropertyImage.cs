@@ -2,7 +2,7 @@
 {
     public class PropertyImage : BaseEntity
     {
-        public int InmuebleId { get; set; }
+        public Guid InmuebleId { get; set; }
         public Inmueble Inmueble { get; set; } = null!;
         public string ImageUrl { get; set; } = string.Empty;
         public string ContentType { get; set; } = "image/jpg";

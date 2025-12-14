@@ -1,5 +1,6 @@
-using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Data.Interface;
 using TecTest_Lubee.Core.Models.Auth;
+using TecTest_Lubee.Services.Interfaces;
 
 namespace TecTest_Lubee.Services;
 

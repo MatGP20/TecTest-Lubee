@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Services.Interfaces;
 using TecTest_Lubee.Data.Entities;
 using TecTest_Lubee.Core.Helper;
 using Microsoft.Extensions.Options;

@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Data.Interface;
 
 namespace TecTest_Lubee.Services;
 
