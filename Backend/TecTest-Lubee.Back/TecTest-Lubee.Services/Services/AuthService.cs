@@ -1,5 +1,7 @@
-using TecTest_Lubee.Data.Interface;
+using Microsoft.EntityFrameworkCore;
 using TecTest_Lubee.Core.Models.Auth;
+using TecTest_Lubee.Data.Interface;
+using TecTest_Lubee.Services.Factories;
 using TecTest_Lubee.Services.Interfaces;
 
 namespace TecTest_Lubee.Services;
@@ -7,38 +9,44 @@ namespace TecTest_Lubee.Services;
 public class AuthService : IAuthService
 {
     private readonly IJwtTokenService _jwtTokenService;
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher _passwordHasher; 
+    protected readonly IDbContextServiceFactory _contextFactory;
 
     public AuthService(
         IJwtTokenService jwtTokenService,
-        IUserRepository userRepository,
+        IDbContextServiceFactory contextFactory,
         IPasswordHasher passwordHasher)
     {
         _jwtTokenService = jwtTokenService;
-        _userRepository = userRepository;
+        _contextFactory = contextFactory;
         _passwordHasher = passwordHasher;
     }
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByUsernameAsync(request.Username, cancellationToken);
-
-        if (user is null || !user.IsActive)
+        using (var context = _contextFactory.CreateDbContext()) 
         {
-            return null;
+            var user = await context.Users.AsNoTracking()
+                .Where(u => u.Username == request.Username)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (user is null || !user.IsActive)
+            {
+                return null;
+            }
+
+            var isValid = _passwordHasher.VerifyHashedPassword(user.PasswordHash, request.Password, user.Username);
+
+            if (!isValid)
+            {
+                return null;
+            }
+
+            var token = _jwtTokenService.GenerateToken(user);
+            var expiresAtUtc = DateTime.UtcNow.Add(_jwtTokenService.ExpiresIn);
+
+            return new LoginResponse(token, expiresAtUtc, user.Username, user.Role);
         }
-
-        var isValid = _passwordHasher.VerifyHashedPassword(user.PasswordHash, request.Password, user.Username);
-
-        if (!isValid)
-        {
-            return null;
-        }
-
-        var token = _jwtTokenService.GenerateToken(user);
-        var expiresAtUtc = DateTime.UtcNow.Add(_jwtTokenService.ExpiresIn);
-
-        return new LoginResponse(token, expiresAtUtc, user.Username, user.Role);
+            
     }
 }
