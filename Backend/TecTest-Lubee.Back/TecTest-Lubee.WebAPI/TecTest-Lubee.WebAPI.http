@@ -1,6 +1,6 @@
 @TecTest_Lubee.WebAPI_HostAddress = http://localhost:5054
 
-GET {{TecTest_Lubee.WebAPI_HostAddress}}/weatherforecast/
+
 Accept: application/json
 
 ###
