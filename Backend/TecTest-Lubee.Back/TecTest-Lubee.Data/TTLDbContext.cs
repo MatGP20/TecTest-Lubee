@@ -25,21 +25,24 @@ namespace TecTest_Lubee.Data
         public DbSet<Inmueble> Inmuebles { get; set; }
         public DbSet<PropertyImage> PropertyImages { get; set; }
 
-
         //Para migrar, descomentar este constructor
-        public TTLDbContext(DbContextOptions options) : base(options)
+        public TTLDbContext(DbContextOptions<TTLDbContext> options) : base(options)
         {
         }
 
         //Para migrar, comentar este método
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    base.OnConfiguring(optionsBuilder);
-        //    optionsBuilder.EnableSensitiveDataLogging()
-        //                  .EnableDetailedErrors()
-        //                  .UseSqlServer(_configuration.GetConnectionString("Database"), opts => opts.EnableRetryOnFailure(10, TimeSpan.FromSeconds(5), null));
-        //}
-
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+           base.OnConfiguring(optionsBuilder);
+           // Solo configura si no viene ya configurado (p.ej. desde la factory) y hay configuración disponible
+           if (optionsBuilder.IsConfigured || _configuration is null)
+           {
+               return;
+           }
+           optionsBuilder.EnableSensitiveDataLogging()
+                         .EnableDetailedErrors()
+                         .UseSqlServer(_configuration.GetConnectionString("DefaultConnection"), opts => opts.EnableRetryOnFailure(10, TimeSpan.FromSeconds(5), null));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +60,5 @@ namespace TecTest_Lubee.Data
                 .HasForeignKey(x => x.InmuebleId)
                 .OnDelete(DeleteBehavior.Cascade);            
         }
-
     }
 }

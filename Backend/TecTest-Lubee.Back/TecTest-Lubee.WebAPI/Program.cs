@@ -1,28 +1,23 @@
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Configuration;
 using System.Text;
 using System.Threading.RateLimiting;
 using TecTest_Lubee.Core.Helper;
-using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Services.Interfaces;
 using TecTest_Lubee.Services;
+using TecTest_Lubee.Services.Factories;
+using TecTest_Lubee.Services.Services;
+using TecTest_Lubee.Data.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configsetting = builder.Configuration
-                           .AddJsonFile("appsettings.json");
-
-ILoggerSettings serilogConfig = (ILoggerSettings)builder.Configuration.GetSection("Serilog");
-
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Settings(serilogConfig)
-    .Enrich.FromLogContext()
-    .CreateLogger();
+builder.Host.UseSerilog((ctx, services, loggerConfiguration) => loggerConfiguration
+    .ReadFrom.Configuration(ctx.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 var rateLimitingSettings = builder.Configuration
     .GetSection("RateLimiting")
@@ -103,6 +98,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IDbContextServiceFactory, DbContextServiceFactory>();
+builder.Services.AddScoped<IInmuebleService, InmuebleService>();
+builder.Services.AddScoped<IPropertyImageService, PropertyImageService>();
 
 var app = builder.Build();
 

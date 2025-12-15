@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TecTest_Lubee.Core.Interfaces;
+using TecTest_Lubee.Services.Interfaces;
 using TecTest_Lubee.Core.Models.Auth;
 
 
