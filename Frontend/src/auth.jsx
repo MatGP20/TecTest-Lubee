@@ -42,12 +42,13 @@ export function AuthProvider({ children }) {
         throw new Error(resp.status === 401 ? "Credenciales inválidas" : "Error de autenticación");
       }
       const data = await resp.json();
+      const loggedUser = { username: data.username, role: data.role };
       setToken(data.token);
-      setUser({ username: data.username, role: data.role });
-      return true;
+      setUser(loggedUser);
+      return { success: true, user: loggedUser };
     } catch (err) {
       setError(err.message || "No se pudo iniciar sesión");
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }

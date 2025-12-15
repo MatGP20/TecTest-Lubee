@@ -24,3 +24,25 @@ export async function fetchInmuebles(token, includeInactive = true) {
 
   return resp.json();
 }
+
+export async function fetchInmuebleById(token, id) {
+  const resp = await fetch(`${API_BASE}/inmueble/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  if (resp.status === 404) {
+    return null;
+  }
+
+  if (resp.status === 401) {
+    const error = new Error("No autorizado");
+    error.status = 401;
+    throw error;
+  }
+
+  if (!resp.ok) {
+    throw new Error("No se pudo obtener el inmueble");
+  }
+
+  return resp.json();
+}

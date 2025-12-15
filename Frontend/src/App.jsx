@@ -2,11 +2,21 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth";
 import LoginPage from "./pages/LoginPage";
 import InmueblesPage from "./pages/InmueblesPage";
+import AdminPropertyDetail from "./pages/AdminPropertyDetail";
+import UserPropertyView from "./pages/UserPropertyView";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
   if (!token) {
     return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (user?.role?.toLowerCase() !== "admin") {
+    return <Navigate to="/inmuebles" replace />;
   }
   return children;
 }
@@ -17,10 +27,38 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route
+          path="/admin/inmuebles"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <InmueblesPage />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/inmuebles/:id"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminPropertyDetail />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/inmuebles"
           element={
             <ProtectedRoute>
               <InmueblesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inmuebles/:id"
+          element={
+            <ProtectedRoute>
+              <UserPropertyView />
             </ProtectedRoute>
           }
         />

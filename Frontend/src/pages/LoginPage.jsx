@@ -3,22 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 
 export default function LoginPage() {
-  const { login, loading, error, token } = useAuth();
+  const { login, loading, error, token, user } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
-      navigate("/inmuebles", { replace: true });
+      const isAdmin = user?.role?.toLowerCase() === "admin";
+      navigate(isAdmin ? "/admin/inmuebles" : "/inmuebles", { replace: true });
     }
-  }, [token, navigate]);
+  }, [token, navigate, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const ok = await login(username, password);
-    if (ok) {
-      navigate("/inmuebles");
+    const result = await login(username, password);
+    if (result.success) {
+      const role = result.user?.role?.toLowerCase();
+      navigate(role === "admin" ? "/admin/inmuebles" : "/inmuebles");
     }
   };
 
