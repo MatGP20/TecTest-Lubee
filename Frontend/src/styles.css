@@ -17,3 +17,43 @@ body {
 .card-shadow {
   box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.08);
 }
+
+.login-shell {
+  min-height: 100vh;
+  background-color: #152012;
+  color: #fff;
+}
+
+.login-hero {
+  position: relative;
+  background: #162013;
+  overflow: hidden;
+}
+
+.login-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCgJ92XkHRrqY2QHpBBsh5z-mGETMUfqolw4bWOG1QCpJG09mbTI48kz2Dl4aRPhdRlTVOR_M1Ae9Rg20M_Cwvuhv_EzbBylCwlZhdWQIULPTdwb4mXY0l916qbD4kGJ6Lc4gwA7E966HLTSx4MRAAcZodHpKCYE8YZuc9oR31UTbgSf-jHD-wtkPke3I0OOBPxcM437UsT9n27YpwDhBEHc84U_b12mdagpHy2zKh9ZmvrocMmHlsmKvRtaz12ZP7wJG9cosVVBX5B");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.6;
+}
+
+.login-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(21, 32, 18, 0.95) 0%, rgba(21, 32, 18, 0.6) 70%, rgba(21, 32, 18, 0.9) 100%),
+    linear-gradient(90deg, #152012 0%, rgba(21, 32, 18, 0.5) 60%, rgba(21, 32, 18, 0) 100%);
+}
+
+.login-hero-content {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+.rounded-xxl {
+  border-radius: 1.5rem;
+}

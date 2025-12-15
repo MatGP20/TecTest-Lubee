@@ -42,8 +42,13 @@ export function AuthProvider({ children }) {
         throw new Error(resp.status === 401 ? "Credenciales inválidas" : "Error de autenticación");
       }
       const data = await resp.json();
+      // API devuelve "accessToken" (camelCase) desde LoginResponse.AccessToken
+      const accessToken = data.accessToken || data.token;
+      if (!accessToken) {
+        throw new Error("Token no recibido");
+      }
       const loggedUser = { username: data.username, role: data.role };
-      setToken(data.token);
+      setToken(accessToken);
       setUser(loggedUser);
       return { success: true, user: loggedUser };
     } catch (err) {
