@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth";
 import { fetchInmuebles } from "../api";
-import { sampleProperties } from "../mockData";
+import AppHeader from "../components/AppHeader";
+import AppFooter from "../components/AppFooter";
 
 const statusVariantClass = {
-  success: "success",
-  warning: "warning",
-  muted: "muted"
+  true: "success",
+  false: "muted"
 };
 
 export default function InmueblesPage() {
@@ -30,31 +30,28 @@ export default function InmueblesPage() {
       setError("");
       try {
         const data = await fetchInmuebles(token, isAdmin);
-        const normalized = (data || []).map((item, idx) => {
-          const preset = sampleProperties[idx % sampleProperties.length];
+        const normalized = (data || []).map((item) => {
+          const primaryImage = item.images?.find((img) => img.isPrimary) || item.images?.[0];
           return {
-            id: item.id || preset.name + idx,
-            name: item.description || preset.name,
-            propertyType: item.propertyType || preset.name,
-            location: item.location || preset.location,
-            price: preset.price,
-            statusVariant: item.isActive ? "success" : "muted",
-            statusLabel: item.isActive ? "Disponible" : "Inactivo",
-            operationType: item.operationType || "Venta",
-            rooms: item.rooms ?? 0,
-            size: item.size ?? 0,
-            image: preset.image
+            id: item.id,
+            name: item.description || item.propertyType || "Sin descripción",
+            propertyType: item.propertyType || "N/D",
+            operationType: item.operationType || "N/D",
+            location: item.location || "Sin ubicación",
+            size: item.size,
+            rooms: item.rooms,
+            isActive: item.isActive,
+            image: primaryImage?.imageUrl
           };
         });
 
-        setProperties(normalized.length ? normalized : sampleProperties);
+        setProperties(normalized);
       } catch (err) {
         if (err.status === 401) {
           handleLogout();
           return;
         }
         setError(err.message || "Error cargando inmuebles");
-        setProperties(sampleProperties);
       } finally {
         setLoading(false);
       }
@@ -77,36 +74,9 @@ export default function InmueblesPage() {
 
   return (
     <div className="page-shell dark d-flex flex-column">
-      <header className="sticky-top border-bottom" style={{ borderColor: "var(--border-surface)" }}>
-        <div className="bg-glass-dark px-3 py-3">
-          <div className="container-fluid d-flex align-items-center justify-content-between gap-3">
-            <div className="d-flex align-items-center gap-3">
-              <div className="d-flex align-items-center gap-2 text-white">
-                <span className="material-symbols-outlined fs-3 text-success">real_estate_agent</span>
-                <span className="fw-bold d-none d-sm-inline">{visibleNavLabel}</span>
-              </div>
-              <div className="d-none d-md-block">
-                <div className="input-group input-group-sm">
-                  <span className="input-group-text bg-transparent border-secondary text-secondary">
-                    <span className="material-symbols-outlined fs-6">search</span>
-                  </span>
-                  <input
-                    className="form-control bg-transparent border-secondary text-white"
-                    placeholder="Buscar propiedades..."
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="d-flex align-items-center gap-3">
-              {user && <span className="text-secondary small">Hola, {user.username}</span>}
-              <button className="btn btn-outline-light btn-sm pill-btn" onClick={handleLogout}>
-                Salir
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <div className="sticky-top">
+        <AppHeader icon="real_estate_agent" title={visibleNavLabel} username={user?.username} onLogout={handleLogout} />
+      </div>
 
       <main className="flex-grow-1 py-4 px-3 px-sm-4">
         <div className="mx-auto" style={{ maxWidth: "1200px" }}>
@@ -138,7 +108,7 @@ export default function InmueblesPage() {
                     <th className="ps-4">Imagen</th>
                     <th>Nombre del Inmueble</th>
                     <th>Ubicación</th>
-                    <th>Precio</th>
+                    <th>Tamaño</th>
                     <th>Estado</th>
                     {isAdmin && <th className="text-end pe-4">Acciones</th>}
                   </tr>
@@ -154,14 +124,16 @@ export default function InmueblesPage() {
                             height: 64,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
-                            backgroundImage: `url(${item.image})`
+                            backgroundImage: item.image
+                              ? `url(${item.image})`
+                              : "linear-gradient(135deg, #233323, #1a261a)"
                           }}
                         />
                       </td>
                       <td>
                         <div className="d-flex flex-column">
                           <span className="text-white fw-bold">{item.name}</span>
-                          <small className="text-secondary">ID: {item.id}</small>
+                          <small className="text-secondary">Tipo: {item.propertyType}</small>
                         </div>
                       </td>
                       <td className="text-secondary">
@@ -170,15 +142,15 @@ export default function InmueblesPage() {
                         </span>
                         {item.location}
                       </td>
-                      <td className="fw-bold" style={{ color: "var(--primary)" }}>
-                        {item.price}
+                      <td className="fw-bold text-white">
+                        {item.size ? `${item.size} m²` : "Sin dato"}
                       </td>
                       <td>
                         <span
-                          className={`badge-soft ${statusVariantClass[item.statusVariant] || "muted"}`}
+                          className={`badge-soft ${statusVariantClass[item.isActive] || "muted"}`}
                         >
                           <span className="rounded-circle d-inline-block" style={{ width: 8, height: 8, backgroundColor: "currentColor" }} />
-                          {item.statusLabel || item.status}
+                          {item.isActive ? "Activo" : "Inactivo"}
                         </span>
                       </td>
                       {isAdmin && (
@@ -231,22 +203,7 @@ export default function InmueblesPage() {
           </div>
         </div>
       </main>
-      <footer className="py-4 px-4" style={{ borderTop: "1px solid var(--border-surface)", backgroundColor: "#131b11" }}>
-        <div className="d-flex flex-column flex-md-row justify-content-between align-items-center text-secondary gap-2">
-          <small>© 2024 Gestión Inmobiliaria. Todos los derechos reservados.</small>
-          <div className="d-flex gap-3">
-            <a className="text-secondary text-decoration-none" href="#">
-              Términos
-            </a>
-            <a className="text-secondary text-decoration-none" href="#">
-              Privacidad
-            </a>
-            <a className="text-secondary text-decoration-none" href="#">
-              Ayuda
-            </a>
-          </div>
-        </div>
-      </footer>
+      <AppFooter text="© 2025 TTL Inmuebles SA. Todos los derechos reservados." align="between" />
     </div>
   );
 }
