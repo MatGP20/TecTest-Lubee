@@ -157,7 +157,15 @@ export default function UserPropertyView() {
 
             <div className="p-3 p-md-4 bg-white bg-opacity-10 rounded-4 border border-secondary-subtle">
               <h4 className="text-white fw-bold mb-3">Ubicación</h4>
-              <div className="w-100 rounded-4 overflow-hidden position-relative" style={{ backgroundColor: "#1e2a1b", height: 260 }}>
+              <div
+                className="w-100 rounded-4 overflow-hidden position-relative"
+                style={{
+                  backgroundImage: "url('/src/images/mapa-ciudad-ilustración-vectorial.jpg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  height: 260
+                }}
+              >
                 <div className="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center">
                   <div className="bg-success rounded-circle d-flex align-items-center justify-content-center" style={{ width: 56, height: 56 }}>
                     <span className="material-symbols-outlined text-white">location_on</span>
@@ -168,7 +176,7 @@ export default function UserPropertyView() {
           </div>
 
           <div className="col-lg-4 d-flex flex-column gap-4">
-            <div className="p-4 bg-white bg-opacity-10 rounded-4 border border-secondary-subtle position-sticky" style={{ top: 90 }}>
+            <div className="p-4 bg-white bg-opacity-10 rounded-4 border border-secondary-subtle" style={{ top: 90 }}>
               <div className="d-flex align-items-center gap-3 mb-3">
                 <div className="rounded-circle border border-success" style={{ width: 64, height: 64, backgroundColor: "#233323" }} />
                 <div>
@@ -197,12 +205,12 @@ export default function UserPropertyView() {
               </div>
             </div>
 
-            <div className="p-3 bg-primary bg-opacity-10 rounded-4 text-primary">
+            {/* <div className="p-3 bg-primary bg-opacity-10 rounded-4 text-primary">
               <h6 className="fw-bold">Vista de Solo Lectura</h6>
               <p className="mb-0 small text-white">
                 Estás viendo este inmueble como usuario invitado. No puedes editar la información mostrada.
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </main>
