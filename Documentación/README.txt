@@ -12,7 +12,9 @@ Solución .NET 8 con arquitectura por capas:
 Autenticación y autorización
 ----------------------------
 - JWT Bearer; clave y parámetros en `appsettings*.json` (`Jwt`).
-- Claims incluye rol (`ClaimTypes.Role`). Policy "Admin" exige rol Admin; usada en controllers con `[Authorize("Admin")]`.
+- Claims incluye rol (`ClaimTypes.Role`). Policies:
+  - "Admin": requiere rol Admin (modificaciones, alta/baja, imágenes, creación de usuarios).
+  - "User": permite lectura de inmuebles (GET lista y detalle).
 
 Persistencia
 ------------
@@ -23,8 +25,9 @@ Persistencia
 Endpoints principales
 ---------------------
 - Auth: `POST /api/auth/login` (JWT).
-- Inmuebles (admin): GET/POST/PUT/PATCH/DELETE bajo `api/inmueble`.
-- Imágenes de propiedad (admin): CRUD bajo `api/inmueble/{propertyId}/images`.
+- Usuarios: `POST /api/auth/users` (Admin) para crear usuario con rol y password.
+- Inmuebles: `GET /api/inmueble` y `GET /api/inmueble/{id}` (User/Admin); POST/PUT/PATCH/DELETE sólo Admin.
+- Imágenes de propiedad: CRUD bajo `api/inmueble/{propertyId}/images` (Admin).
 
 Configuraciones útiles
 ----------------------
@@ -36,5 +39,5 @@ Para correr local
 -----------------
 1) Levantar SQL Server (Docker) y ajustar `DefaultConnection`.
 2) Aplicar migraciones: `ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project Backend/TecTest-Lubee.Back/TecTest-Lubee.Data --startup-project Backend/TecTest-Lubee.Back/TecTest-Lubee.WebAPI --context TTLDbContext`.
-3) (Opcional) Seed: `RUN_SEED=true ASPNETCORE_ENVIRONMENT=Development dotnet run --project Backend/TecTest-Lubee.Back/TecTest-Lubee.WebAPI`.
+3) (Opcional) Seed: `RUN_SEED=true ASPNETCORE_ENVIRONMENT=Development dotnet run --project Backend/TecTest-Lubee.Back/TecTest-Lubee.WebAPI` (sólo carga si la tabla Users está vacía).
 4) Ejecutar API: `dotnet run --project Backend/TecTest-Lubee.Back/TecTest-Lubee.WebAPI`.
