@@ -13,11 +13,13 @@ const statusVariantClass = {
 export default function InmueblesPage() {
   const { token, user, logout } = useAuth();
   const [properties, setProperties] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const isAdmin = user?.role?.toLowerCase() === "admin";
+  const pageSize = 10;
 
   useEffect(() => {
     if (!token) {
@@ -46,6 +48,7 @@ export default function InmueblesPage() {
         });
 
         setProperties(normalized);
+        setPage(1);
       } catch (err) {
         if (err.status === 401) {
           handleLogout();
@@ -72,6 +75,19 @@ export default function InmueblesPage() {
     navigate(isAdmin ? `/admin/inmuebles/${id}` : `/inmuebles/${id}`);
   };
 
+  const totalPages = Math.max(1, Math.ceil(properties.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return properties.slice(start, end);
+  }, [properties, currentPage]);
+
+  const handlePageChange = (nextPage) => {
+    const safePage = Math.min(Math.max(nextPage, 1), totalPages);
+    setPage(safePage);
+  };
+
   return (
     <div className="page-shell dark d-flex flex-column">
       <div className="sticky-top">
@@ -90,7 +106,10 @@ export default function InmueblesPage() {
               </p>
             </div>
             {isAdmin && (
-              <button className="btn btn-success d-flex align-items-center gap-2 pill-btn shadow-strong">
+              <button
+                className="btn btn-success d-flex align-items-center gap-2 pill-btn shadow-strong"
+                onClick={() => navigate("/admin/inmuebles/nuevo")}
+              >
                 <span className="material-symbols-outlined fs-6">add</span>
                 Agregar Inmueble
               </button>
@@ -114,7 +133,7 @@ export default function InmueblesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {properties.map((item, idx) => (
+                  {pageItems.map((item, idx) => (
                     <tr key={item.id || idx} onClick={() => handleRowClick(item.id)}>
                       <td className="ps-4">
                         <div
@@ -186,16 +205,29 @@ export default function InmueblesPage() {
               style={{ borderTop: `1px solid var(--border-surface)`, backgroundColor: "#192416" }}
             >
               <small className="text-secondary d-none d-sm-inline">
-                Mostrando {properties.length} inmuebles
+                {properties.length
+                  ? `Mostrando ${Math.min((currentPage - 1) * pageSize + 1, properties.length)}-${Math.min(
+                      currentPage * pageSize,
+                      properties.length
+                    )} de ${properties.length}`
+                  : "Sin inmuebles"}
               </small>
-              <div className="d-flex gap-2">
-                <button className="btn btn-sm btn-outline-light rounded-circle border-0">
+              <div className="d-flex gap-2 align-items-center">
+                <button
+                  className="btn btn-sm btn-outline-light rounded-circle border-0"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
                   <span className="material-symbols-outlined fs-6">chevron_left</span>
                 </button>
-                <button className="btn btn-sm btn-success rounded-circle border-0">1</button>
-                <button className="btn btn-sm btn-outline-light rounded-circle border-0">2</button>
-                <button className="btn btn-sm btn-outline-light rounded-circle border-0">3</button>
-                <button className="btn btn-sm btn-outline-light rounded-circle border-0">
+                <span className="text-secondary small">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button
+                  className="btn btn-sm btn-outline-light rounded-circle border-0"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
                   <span className="material-symbols-outlined fs-6">chevron_right</span>
                 </button>
               </div>

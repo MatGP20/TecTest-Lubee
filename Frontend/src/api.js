@@ -46,3 +46,27 @@ export async function fetchInmuebleById(token, id) {
 
   return resp.json();
 }
+
+export async function createInmueble(token, payload) {
+  const resp = await fetch(`${API_BASE}/inmueble`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (resp.status === 401) {
+    const error = new Error("No autorizado");
+    error.status = 401;
+    throw error;
+  }
+
+  if (!resp.ok) {
+    const message = await resp.text();
+    throw new Error(message || "No se pudo crear el inmueble");
+  }
+
+  return resp.json();
+}

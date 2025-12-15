@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import InmueblesPage from "./pages/InmueblesPage";
 import AdminPropertyDetail from "./pages/AdminPropertyDetail";
 import UserPropertyView from "./pages/UserPropertyView";
+import AdminPropertyCreate from "./pages/AdminPropertyCreate";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -42,6 +43,16 @@ export default function App() {
             <ProtectedRoute>
               <AdminRoute>
                 <AdminPropertyDetail />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/inmuebles/nuevo"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminPropertyCreate />
               </AdminRoute>
             </ProtectedRoute>
           }
