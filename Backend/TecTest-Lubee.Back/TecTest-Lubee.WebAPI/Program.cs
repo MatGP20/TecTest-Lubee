@@ -1,16 +1,19 @@
-using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
 using System.Threading.RateLimiting;
 using TecTest_Lubee.Core.Helper;
+using TecTest_Lubee.Data;
+using TecTest_Lubee.Data.Seeds;
 using TecTest_Lubee.Services.Interfaces;
 using TecTest_Lubee.Services;
 using TecTest_Lubee.Services.Factories;
 using TecTest_Lubee.Services.Services;
 using TecTest_Lubee.Data.Interface;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +81,9 @@ if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey))
     throw new InvalidOperationException("Jwt:SecretKey debe estar configurado.");
 }
 
+// Configura JwtSettings para inyección de IOptions<JwtSettings> (usado en JwtTokenService)
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -94,7 +100,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -103,6 +112,22 @@ builder.Services.AddScoped<IInmuebleService, InmuebleService>();
 builder.Services.AddScoped<IPropertyImageService, PropertyImageService>();
 
 var app = builder.Build();
+
+// ============================================================
+// SEED INICIAL: descomenta/ejecuta sólo cuando necesites cargar datos.
+// Usa RUN_SEED=true para habilitarlo y vuelve a comentar/quitar después
+// del primer uso para evitar reinsertar registros.
+// ============================================================
+// if (Environment.GetEnvironmentVariable("RUN_SEED") == "true")
+// {
+//     using var scope = app.Services.CreateScope();
+//     var contextFactory = scope.ServiceProvider.GetRequiredService<IDbContextServiceFactory>();
+//     var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+//     using var seedContext = contextFactory.CreateDbContext();
+//     var seeder = new DBSeed(seedContext, passwordHasher);
+//     await seeder.SeedAsync();
+//     return;
+// }
 
 app.UseSerilogRequestLogging();
 

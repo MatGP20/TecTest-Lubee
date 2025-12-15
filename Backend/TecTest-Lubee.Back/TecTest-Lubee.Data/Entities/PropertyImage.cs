@@ -1,8 +1,11 @@
-﻿namespace TecTest_Lubee.Data.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace TecTest_Lubee.Data.Entities
 {
     public class PropertyImage : BaseEntity
     {
         public Guid InmuebleId { get; set; }
+        [JsonIgnore] // evita referencia cíclica al serializar Inmueble -> Images -> Inmueble
         public Inmueble Inmueble { get; set; } = null!;
         public string ImageUrl { get; set; } = string.Empty;
         public string ContentType { get; set; } = "image/jpg";

@@ -10,7 +10,7 @@ namespace TecTest_Lubee.Data
 {
     public class TTLDbContext: DbContext
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration? _configuration;
         public static TTLDbContext GetNewDataContext(IConfiguration configuration)
         {
             return new TTLDbContext(configuration);
