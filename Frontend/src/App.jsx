@@ -5,6 +5,7 @@ import InmueblesPage from "./pages/InmueblesPage";
 import AdminPropertyDetail from "./pages/AdminPropertyDetail";
 import UserPropertyView from "./pages/UserPropertyView";
 import AdminPropertyCreate from "./pages/AdminPropertyCreate";
+import AdminPropertyImageForm from "./pages/AdminPropertyImageForm";
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth();
@@ -53,6 +54,26 @@ export default function App() {
             <ProtectedRoute>
               <AdminRoute>
                 <AdminPropertyCreate mode="edit" />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/inmuebles/:id/imagenes/nueva"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminPropertyImageForm mode="create" />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/inmuebles/:id/imagenes/:imageId/editar"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminPropertyImageForm mode="edit" />
               </AdminRoute>
             </ProtectedRoute>
           }

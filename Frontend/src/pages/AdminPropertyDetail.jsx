@@ -85,9 +85,13 @@ export default function AdminPropertyDetail() {
       <main className="flex-grow-1 py-4 px-3 px-md-4">
         <div className="mx-auto" style={{ maxWidth: 1100 }}>
           <div className="d-flex flex-wrap gap-2 align-items-center text-secondary mb-3">
-            <a className="text-decoration-none text-secondary">Inicio</a>
-            <span>/</span>
-            <a className="text-decoration-none text-secondary">Propiedades</a>
+            <a
+              className="text-decoration-none text-secondary"
+              onClick={() => navigate("/admin/inmuebles")}
+              role="button"
+            >
+              Propiedades
+            </a>
             <span>/</span>
             <span className="text-white">Detalle</span>
           </div>
@@ -108,7 +112,12 @@ export default function AdminPropertyDetail() {
                 <span className="material-symbols-outlined fs-6">edit</span>
                 Editar Información
               </button>
-              <button className="btn btn-success pill-btn shadow-strong">Publicar</button>
+              {/* <button
+                className="btn btn-success pill-btn shadow-strong"
+                onClick={() => navigate(`/admin/inmuebles/${property.id}/imagenes/nueva`)}
+              >
+                Agregar Imágenes
+              </button> */}
             </div>
           </div>
 
@@ -129,7 +138,7 @@ export default function AdminPropertyDetail() {
             <p className="text-secondary lh-lg">{property.description}</p>
           </div>
 
-          <div className="p-4 surface-card rounded-4 shadow-lg">
+            <div className="p-4 surface-card rounded-4 shadow-lg">
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
               <div className="d-flex align-items-center gap-3">
                 <div className="p-2 rounded-circle bg-dark text-success">
@@ -140,7 +149,8 @@ export default function AdminPropertyDetail() {
                   <small className="text-secondary">Gestiona las fotos de la propiedad</small>
                 </div>
               </div>
-              <button className="btn btn-success pill-btn d-flex align-items-center gap-2">
+              <button className="btn btn-success pill-btn d-flex align-items-center gap-2"
+              onClick={() => navigate(`/admin/inmuebles/${property.id}/imagenes/nueva`)}>
                 <span className="material-symbols-outlined fs-6">add_photo_alternate</span>
                 Agregar Imágenes
               </button>
@@ -148,8 +158,31 @@ export default function AdminPropertyDetail() {
             <div className="grid-gallery">
               {property.images.length > 0 ? (
                 property.images.map((img, idx) => (
-                  <div className="gallery-item" key={img.id || idx}>
-                    <img src={img.imageUrl} alt={img.contentType || `Imagen ${idx}`} />
+                  <div className="gallery-item" key={img.id || idx} style={{ height: 220 }}>
+                    <div
+                      className="w-100 h-100"
+                      style={{
+                        backgroundImage: `url(${img.imageUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        borderRadius: 16
+                      }}
+                      aria-label={img.contentType || `Imagen ${idx}`}
+                    />
+                    <div className="position-absolute top-0 end-0 p-2 d-flex gap-1">
+                      <button
+                        className="btn btn-sm btn-light rounded-circle"
+                        onClick={() =>
+                          navigate(`/admin/inmuebles/${property.id}/imagenes/${img.id}/editar`, {
+                            state: { image: img }
+                          })
+                        }
+                        title="Editar imagen"
+                      >
+                        <span className="material-symbols-outlined fs-6">edit</span>
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (

@@ -100,3 +100,57 @@ export async function updateInmueble(token, id, payload) {
 
   return true;
 }
+
+export async function createPropertyImage(token, propertyId, payload) {
+  const resp = await fetch(`${API_BASE}/inmueble/${propertyId}/images`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (resp.status === 401) {
+    const error = new Error("No autorizado");
+    error.status = 401;
+    throw error;
+  }
+
+  if (!resp.ok) {
+    const message = await resp.text();
+    throw new Error(message || "No se pudo crear la imagen");
+  }
+
+  return resp.json();
+}
+
+export async function updatePropertyImage(token, propertyId, imageId, payload) {
+  const resp = await fetch(`${API_BASE}/inmueble/${propertyId}/images/${imageId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (resp.status === 401) {
+    const error = new Error("No autorizado");
+    error.status = 401;
+    throw error;
+  }
+
+  if (resp.status === 404) {
+    const error = new Error("Imagen no encontrada");
+    error.status = 404;
+    throw error;
+  }
+
+  if (!resp.ok) {
+    const message = await resp.text();
+    throw new Error(message || "No se pudo actualizar la imagen");
+  }
+
+  return true;
+}
