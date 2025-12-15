@@ -48,6 +48,16 @@ export default function App() {
           }
         />
         <Route
+          path="/admin/inmuebles/:id/editar"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminPropertyCreate mode="edit" />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/inmuebles/nuevo"
           element={
             <ProtectedRoute>

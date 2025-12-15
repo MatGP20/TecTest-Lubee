@@ -1,16 +1,19 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../auth";
-import { createInmueble } from "../api";
+import { createInmueble, fetchInmuebleById, updateInmueble } from "../api";
 import AppHeader from "../components/AppHeader";
 import AppFooter from "../components/AppFooter";
 
 const requiredMark = <span className="text-danger ms-1">*</span>;
 
-export default function AdminPropertyCreate() {
+export default function AdminPropertyCreate({ mode = "create" }) {
   const { token, user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
   const [form, setForm] = useState({
+    id: "",
     propertyType: "",
     operationType: "",
     description: "",
@@ -22,6 +25,48 @@ export default function AdminPropertyCreate() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(mode === "edit");
+
+  const isEdit = mode === "edit";
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isEdit) return;
+      setLoading(true);
+      try {
+        // Prefer state passed from navigation to avoid extra fetch
+        const stateData = location.state?.inmueble;
+        let data = stateData;
+        if (!data) {
+          const id = params.id;
+          data = await fetchInmuebleById(token, id);
+        }
+        if (data) {
+          setForm({
+            id: data.id,
+            propertyType: data.propertyType || "",
+            operationType: data.operationType || "",
+            description: data.description || "",
+            rooms: data.rooms ?? "",
+            size: data.size ?? "",
+            antiquity: data.antiquity ?? "",
+            location: data.location || "",
+            isActive: data.isActive
+          });
+        }
+      } catch (err) {
+        if (err.status === 401) {
+          logout();
+          navigate("/", { replace: true });
+          return;
+        }
+        setError(err.message || "No se pudo cargar el inmueble");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [isEdit, location.state, params.id, token, logout, navigate]);
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
@@ -43,7 +88,11 @@ export default function AdminPropertyCreate() {
         location: form.location || null,
         isActive: form.isActive
       };
-      await createInmueble(token, payload);
+      if (isEdit) {
+        await updateInmueble(token, form.id, payload);
+      } else {
+        await createInmueble(token, payload);
+      }
       navigate("/admin/inmuebles");
     } catch (err) {
       if (err.status === 401) {
@@ -51,7 +100,7 @@ export default function AdminPropertyCreate() {
         navigate("/", { replace: true });
         return;
       }
-      setError(err.message || "No se pudo crear el inmueble");
+      setError(err.message || (isEdit ? "No se pudo actualizar el inmueble" : "No se pudo crear el inmueble"));
     } finally {
       setSaving(false);
     }
@@ -60,7 +109,7 @@ export default function AdminPropertyCreate() {
   return (
     <div className="page-shell dark d-flex flex-column">
       <div className="sticky-top">
-        <AppHeader icon="add_home_work" title="Nuevo Inmueble" username={user?.username} onLogout={logout} />
+        <AppHeader icon="add_home_work" title={isEdit ? "Editar Inmueble" : "Nuevo Inmueble"} username={user?.username} onLogout={logout} />
       </div>
 
       <main className="flex-grow-1 py-4 px-3 px-md-4">
@@ -70,12 +119,15 @@ export default function AdminPropertyCreate() {
               Volver
             </a>
             <span>/</span>
-            <span className="text-white">Crear Inmueble</span>
+            <span className="text-white">{isEdit ? "Editar Inmueble" : "Crear Inmueble"}</span>
           </div>
 
           <div className="surface-card p-4 rounded-4 shadow-lg">
             <h3 className="text-white fw-bold mb-3">Datos del Inmueble</h3>
-            <form className="row g-3" onSubmit={handleSubmit}>
+            {loading ? (
+              <div className="alert alert-info">Cargando inmueble...</div>
+            ) : (
+              <form className="row g-3" onSubmit={handleSubmit}>
               <div className="col-md-6">
                 <label className="form-label text-white-50">
                   Tipo de Inmueble{requiredMark}
@@ -180,6 +232,7 @@ export default function AdminPropertyCreate() {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       </main>

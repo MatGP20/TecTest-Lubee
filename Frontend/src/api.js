@@ -70,3 +70,33 @@ export async function createInmueble(token, payload) {
 
   return resp.json();
 }
+
+export async function updateInmueble(token, id, payload) {
+  const resp = await fetch(`${API_BASE}/inmueble/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (resp.status === 401) {
+    const error = new Error("No autorizado");
+    error.status = 401;
+    throw error;
+  }
+
+  if (resp.status === 404) {
+    const error = new Error("Inmueble no encontrado");
+    error.status = 404;
+    throw error;
+  }
+
+  if (!resp.ok) {
+    const message = await resp.text();
+    throw new Error(message || "No se pudo actualizar el inmueble");
+  }
+
+  return true;
+}

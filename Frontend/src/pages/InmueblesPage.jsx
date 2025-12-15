@@ -180,7 +180,7 @@ export default function InmueblesPage() {
                               title="Editar"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleRowClick(item.id);
+                                navigate(`/admin/inmuebles/${item.id}/editar`, { state: { inmueble: item } });
                               }}
                             >
                               <span className="material-symbols-outlined fs-6">edit</span>

@@ -101,7 +101,10 @@ export default function AdminPropertyDetail() {
               </div>
             </div>
             <div className="d-flex gap-2">
-              <button className="btn btn-outline-light pill-btn d-flex align-items-center gap-2">
+              <button
+                className="btn btn-outline-light pill-btn d-flex align-items-center gap-2"
+                onClick={() => navigate(`/admin/inmuebles/${property.id}/editar`, { state: { inmueble: property } })}
+              >
                 <span className="material-symbols-outlined fs-6">edit</span>
                 Editar Información
               </button>
