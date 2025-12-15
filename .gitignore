@@ -62,3 +62,4 @@ nunit-*.xml
 /Backend/TecTest-Lubee.Back/.vs/TecTest-Lubee.Back/FileContentIndex
 /Backend/TecTest-Lubee.Back/.vs
 /Backend/TecTest-Lubee.Back/TecTest-Lubee.Data/appsettings.Development.json
+node_modules/
