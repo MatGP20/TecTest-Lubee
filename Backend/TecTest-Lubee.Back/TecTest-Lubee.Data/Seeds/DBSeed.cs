@@ -36,7 +36,15 @@ namespace TecTest_Lubee.Data.Seeds
             {
                 Username = "superUser",
                 Role = "Admin",
-                PasswordHash = _passwordHasher.HashPassword("Super123!", "admin"),
+                PasswordHash = _passwordHasher.HashPassword("Super123!", "superUser"),
+                IsActive = true
+            };
+
+            var user = new User
+            {
+                Username = "user",
+                Role = "User",
+                PasswordHash = _passwordHasher.HashPassword("User123!", "user"),
                 IsActive = true
             };
 
@@ -113,6 +121,7 @@ namespace TecTest_Lubee.Data.Seeds
 
             await _dbContext.Users.AddAsync(admin, cancellationToken);
             await _dbContext.Users.AddAsync(superUser, cancellationToken);
+            await _dbContext.Users.AddAsync(user, cancellationToken);
             await _dbContext.Inmuebles.AddAsync(property1, cancellationToken);
             await _dbContext.Inmuebles.AddAsync(property2, cancellationToken);
             await _dbContext.Inmuebles.AddAsync(property3, cancellationToken);

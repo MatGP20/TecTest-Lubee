@@ -8,7 +8,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiVersion("1.0")]
-    [Authorize("Admin")]
+    [Authorize] // policies por acción
     public class InmuebleController : ControllerBase
     {
         protected readonly IInmuebleService _inmuebleService;
@@ -23,6 +23,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize("User")]
         public async Task<IActionResult> GetAll([FromQuery] bool includeInactive = false)
         {
             try
@@ -44,6 +45,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize("User")]
         public async Task<ActionResult> Get(Guid id)
         {
             try
@@ -65,6 +67,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize("Admin")]
         public async Task<IActionResult> Post([FromBody] Inmueble inmueble)
         {
             try{
@@ -85,6 +88,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize("Admin")]
         public async Task<IActionResult> Put(Guid id, [FromBody] Inmueble inmueble)
         {
             try{
@@ -105,6 +109,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpPatch("{id:guid}/activation")]
+        [Authorize("Admin")]
         public async Task<IActionResult> ToggleActivation(Guid id, [FromQuery] bool isActive)
         {
             try
@@ -126,6 +131,7 @@ namespace TecTest_Lubee.WebAPI.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize("Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
